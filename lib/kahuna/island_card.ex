@@ -30,4 +30,12 @@ defmodule Kahuna.IslandCard do
   def id(%__MODULE__{island_id: island_id, card_number: card_number}) do
     {island_id, card_number}
   end
+
+  @spec has_island_id(t(), Island.id()) :: boolean()
+  def has_island_id(%{island_id: card_island_id}, island_id) do
+    card_island_id == island_id
+  end
+
+  @spec island_id(t()) :: Island.id()
+  def island_id(%{island_id: val}), do: val
 end

@@ -1,4 +1,5 @@
 defmodule Kahuna.IslandCards do
+  alias Kahuna.Island
   alias Kahuna.Islands
   alias Kahuna.IslandCard
   alias Kahuna.IslandCard, as: Card
@@ -9,7 +10,10 @@ defmodule Kahuna.IslandCards do
                 Card.new(island, card_number)
               end)
 
+  # TODO replace cards with stack type
   @type cards :: [IslandCard.t()]
+  @type stack :: [IslandCard.t()]
+
   @type hands :: %{Player.id() => cards()}
   @type fn_update_cards :: (cards() -> cards())
 
@@ -75,14 +79,54 @@ defmodule Kahuna.IslandCards do
     %__MODULE__{island_cards | hands: Map.update!(hands, player_id, update_fn)}
   end
 
+  @spec last_discard!(t()) :: Card.t()
+  def last_discard!(cards) do
+    case cards.discard_pile do
+      [last_discard | _] ->
+        last_discard
+
+      discards ->
+        raise "Expected a discard pile with at least one card, found: #{inspect(discards)}."
+    end
+  end
+
   #####################################
   # CONVERTERS
   #####################################
 
-  # @spec player_hand(t(), Player.id()) :: cards()
-  # defp player_hand(%__MODULE__{hands: hands}, player_id) do
-  #   Map.fetch!(hands, player_id)
-  # end
+  @spec set_player_hand(t(), Player.id(), cards()) :: t()
+  defp set_player_hand(cards, player_id, new_hand) do
+    new_hands = Map.replace!(cards.hands, player_id, new_hand)
+    struct!(cards, hands: new_hands)
+  end
+
+  #####################################
+  # CONVERTERS (BOUNDARY)
+  #####################################
+
+  @spec discard(t(), Player.id(), Island.id()) :: {:ok, t()} | {:error, String.t()}
+  def discard(cards, player_id, island_id) do
+    player_hand = player_hand(cards, player_id)
+
+    with {:ok, [card_to_discard | remaining_player_hand]} <-
+           bring_card_to_top(player_hand, island_id) do
+      new_discards = [card_to_discard | cards.discard_pile]
+
+      new_cards =
+        cards
+        |> set_player_hand(player_id, remaining_player_hand)
+        |> struct!(discard_pile: new_discards)
+
+      {:ok, new_cards}
+    else
+      :error -> {:error, "Expected #{inspect player_hand} Player #{player_id} hand to contain #{inspect island_id}"}
+    end
+  end
+
+  @spec player_hand(t(), Player.id()) :: stack()
+  defp player_hand(cards, player_id) do
+    Map.fetch!(cards.hands, player_id)
+  end
 
   #####################################
   # HELPERS
@@ -91,5 +135,11 @@ defmodule Kahuna.IslandCards do
   @spec add_card_fn(IslandCard.t()) :: fn_update_cards()
   defp add_card_fn(new_card) do
     fn stack -> [new_card | stack] end
+  end
+
+  @spec bring_card_to_top(stack(), Island.id()) :: {:ok, stack()} | :error
+  defp bring_card_to_top(stack, island_id) do
+    find_fn = &Card.has_island_id(&1, island_id)
+    Kahuna.Stack.move_to_top(stack, find_fn)
   end
 end

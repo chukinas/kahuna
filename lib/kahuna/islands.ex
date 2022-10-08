@@ -15,8 +15,7 @@ defmodule Kahuna.Islands do
            Kanu
            Lale
            /
-           |> Stream.with_index(1)
-           |> Enum.map(fn {name, id} -> Island.new(id, name) end)
+           |> Enum.map(&Island.from_name/1)
 
   @type t :: [Island.t()]
 
