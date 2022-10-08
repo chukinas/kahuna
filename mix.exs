@@ -19,6 +19,7 @@ defmodule Kahuna.MixProject do
 
   defp deps do
     [
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:typed_struct, "~> 0.3.0"}
     ]
   end
