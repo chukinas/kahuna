@@ -9,18 +9,16 @@ defmodule Kahuna.Cards do
                 Card.new(island, card_number)
               end)
 
-  # TODO replace cards with stack type
-  @type cards :: [Card.t()]
   @type stack :: [Card.t()]
 
-  @type hands :: %{Player.id() => cards()}
-  @type fn_update_cards :: (cards() -> cards())
+  @type hands :: %{Player.id() => stack()}
+  @type fn_update_cards :: (stack() -> stack())
 
   typedstruct do
-    field :face_up, cards(), default: []
-    field :draw_pile, cards(), default: Enum.shuffle(@all_cards)
+    field :face_up, stack(), default: []
+    field :draw_pile, stack(), default: Enum.shuffle(@all_cards)
     field :hands, hands(), default: %{1 => [], 2 => []}
-    field :discard_pile, cards(), default: []
+    field :discard_pile, stack(), default: []
   end
 
   #####################################
@@ -93,7 +91,7 @@ defmodule Kahuna.Cards do
   # CONVERTERS
   #####################################
 
-  @spec set_player_hand(t(), Player.id(), cards()) :: t()
+  @spec set_player_hand(t(), Player.id(), stack()) :: t()
   defp set_player_hand(cards, player_id, new_hand) do
     new_hands = Map.replace!(cards.hands, player_id, new_hand)
     struct!(cards, hands: new_hands)
