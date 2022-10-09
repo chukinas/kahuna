@@ -1,4 +1,4 @@
-defmodule Kahuna.IslandCard do
+defmodule Kahuna.Card do
   alias Kahuna.Island
   use TypedStruct
 

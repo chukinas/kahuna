@@ -1,10 +1,10 @@
 defmodule Kahuna.PlayerAction.PlaceBridge do
   use TypedStruct
   alias Kahuna.Bridges
+  alias Kahuna.Card
+  alias Kahuna.Cards
   alias Kahuna.Game
   alias Kahuna.Island
-  alias Kahuna.IslandCard, as: Card
-  alias Kahuna.IslandCards, as: Cards
   alias Kahuna.Player
 
   typedstruct enforce: true do

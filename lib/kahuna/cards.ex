@@ -1,8 +1,7 @@
-defmodule Kahuna.IslandCards do
+defmodule Kahuna.Cards do
+  alias Kahuna.Card
   alias Kahuna.Island
   alias Kahuna.Islands
-  alias Kahuna.IslandCard
-  alias Kahuna.IslandCard, as: Card
   alias Kahuna.Player
   use TypedStruct
 
@@ -11,8 +10,8 @@ defmodule Kahuna.IslandCards do
               end)
 
   # TODO replace cards with stack type
-  @type cards :: [IslandCard.t()]
-  @type stack :: [IslandCard.t()]
+  @type cards :: [Card.t()]
+  @type stack :: [Card.t()]
 
   @type hands :: %{Player.id() => cards()}
   @type fn_update_cards :: (cards() -> cards())
@@ -59,7 +58,7 @@ defmodule Kahuna.IslandCards do
   # defp draw_face_up(island_cards, player_id, face_up_card_index) when is_integer(face_up_card_index) do
   #   {drawn_card, remaining} =
   #     case List.pop_at(island_cards.face_up, face_up_card_index) do
-  #       {%IslandCard{} = card, remaining} -> {card, remaining}
+  #       {%Card{} = card, remaining} -> {card, remaining}
   #       _ -> raise "out of bounds index"
   #     end
 
@@ -132,7 +131,7 @@ defmodule Kahuna.IslandCards do
   # HELPERS
   #####################################
 
-  @spec add_card_fn(IslandCard.t()) :: fn_update_cards()
+  @spec add_card_fn(Card.t()) :: fn_update_cards()
   defp add_card_fn(new_card) do
     fn stack -> [new_card | stack] end
   end
