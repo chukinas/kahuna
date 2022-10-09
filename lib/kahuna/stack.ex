@@ -16,7 +16,8 @@ defmodule Kahuna.Stack do
           remaining_items :: [item],
           find_fn(),
           searched_items_in_rev_order :: [item]
-        ) :: {:ok, [item]} | :error when item: var
+        ) :: {:ok, [item]} | :error
+        when item: var
   defp do_move_to_top([], _find_fn, _all_items_in_rev_order) do
     :error
   end

@@ -32,12 +32,43 @@ defmodule Kahuna.Bridges do
   def new, do: @all
 
   #####################################
+  # REDUCERS
+  #####################################
+
+  @spec update_all(t(), (Bridge.t() -> Bridge.t()), (Bridge.t() -> boolean())) :: t()
+  def update_all(bridges, update_fn, update_if \\ fn _ -> true end) do
+    update_each = fn {id, bridge} ->
+      if update_if.(bridge) do
+        {id, update_fn.(bridge)}
+      else
+        {id, bridge}
+      end
+    end
+
+    bridges
+    |> Enum.map(update_each)
+    |> Map.new()
+  end
+
+  #####################################
+  # CONVERTERS
+  #####################################
+
+  @spec by_island_id(t(), Island.id()) :: [Bridge.t()]
+  def by_island_id(bridges \\ @all, island_id) do
+    bridges
+    |> Map.values()
+    |> Enum.filter(&Bridge.connected_to?(&1, island_id))
+  end
+
+  #####################################
   # BOUNDARY
   #####################################
 
   @spec build(t(), Player.id(), Island.id(), Island.id()) :: {:ok, t()} | {:error, String.t()}
   def build(bridges, player_id, island_id_1, island_id_2) do
     bridge_id = Bridge.build_id(island_id_1, island_id_2)
+
     with {:ok, bridge} <- Map.fetch(bridges, bridge_id),
          {:ok, new_bridge} <- Bridge.build(bridge, player_id) do
       new_bridges = Map.replace!(bridges, bridge_id, new_bridge)

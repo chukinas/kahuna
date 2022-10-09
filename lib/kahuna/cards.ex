@@ -116,7 +116,9 @@ defmodule Kahuna.Cards do
 
       {:ok, new_cards}
     else
-      :error -> {:error, "Expected #{inspect player_hand} Player #{player_id} hand to contain #{inspect island_id}"}
+      :error ->
+        {:error,
+         "Expected #{inspect(player_hand)} Player #{player_id} hand to contain #{inspect(island_id)}"}
     end
   end
 

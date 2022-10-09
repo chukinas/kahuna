@@ -25,7 +25,6 @@ defmodule Kahuna.Game do
   # BOUNDARY
   #####################################
 
-  # TODO this shouldn't be called by PlayerAction.
   # TODO extract into another protocol
   @spec validate_player_turn(t(), Player.id()) :: :ok | :error
   def validate_player_turn(game, player_id) do
@@ -44,6 +43,9 @@ defmodule Kahuna.Game do
 
   @spec set_cards(t(), Cards.t()) :: t()
   def set_cards(game, cards), do: struct!(game, island_cards: cards)
+
+  @spec set_islands(t(), Islands.t()) :: t()
+  def set_islands(game, islands), do: struct!(game, islands: islands)
 
   #####################################
   # CONVERTERS

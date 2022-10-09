@@ -23,8 +23,27 @@ defmodule Kahuna.Bridge do
   # CONVERTERS
   #####################################
 
-  @spec id(t()) :: id()
-  def id(%__MODULE__{id: id}), do: id
+  def id(%__MODULE__{id: val}), do: val
+  def owner(%__MODULE__{owner: val}), do: val
+  def island_ids(%__MODULE__{id: {id1, id2}}), do: [id1, id2]
+
+  @spec connected_to?(t(), Island.id()) :: boolean()
+  def connected_to?(bridge, island_id) do
+    connected? = island_id in island_ids(bridge)
+    # IO.inspect({island_id, bridge, connected?})
+    connected?
+  end
+
+  @spec other_island_id!(t(), Island.id()) :: Island.id()
+  def other_island_id!(bridge, island_id) do
+    bridge
+    |> island_ids
+    |> Enum.reject(&(&1 == island_id))
+    |> case do
+      [other_island_id] -> other_island_id
+      _ -> raise "Expected #{inspect(bridge)} to be connected to #{inspect(island_id)}"
+    end
+  end
 
   #####################################
   # BOUNDARY
@@ -34,7 +53,7 @@ defmodule Kahuna.Bridge do
   def build(bridge, player_id) do
     case bridge.owner do
       nil ->
-        new_bridge = struct!(bridge, owner: player_id)
+        new_bridge = set_owner(bridge, player_id)
         {:ok, new_bridge}
 
       ^player_id ->
@@ -43,6 +62,11 @@ defmodule Kahuna.Bridge do
       _ ->
         {:error, "Bridge already exists here, owned by opponent"}
     end
+  end
+
+  @spec set_owner(t(), Player.id()) :: t()
+  def set_owner(bridge, player_id) do
+    struct!(bridge, owner: player_id)
   end
 
   #####################################

@@ -3,6 +3,7 @@ defmodule Kahuna.PlayerAction.PlaceBridge do
   alias Kahuna.Bridges
   alias Kahuna.Card
   alias Kahuna.Cards
+  alias Kahuna.ControlCascade
   alias Kahuna.Game
   alias Kahuna.Island
   alias Kahuna.Player
@@ -31,7 +32,15 @@ defmodule Kahuna.PlayerAction.PlaceBridge do
          bridges = Game.bridges(game),
          player_id = Game.current_player_id(game),
          {:ok, new_bridges} <- Bridges.build(bridges, player_id, island_id_start, island_id_end) do
-      new_game = game |> Game.set_bridges(new_bridges) |> Game.set_cards(new_cards)
+      %ControlCascade{bridges: cascaded_bridges, islands: cascaded_islands} =
+        ControlCascade.new(game.islands, new_bridges)
+
+      new_game =
+        game
+        |> Game.set_bridges(cascaded_bridges)
+        |> Game.set_cards(new_cards)
+        |> Game.set_islands(cascaded_islands)
+
       {:ok, new_game}
     end
   end
